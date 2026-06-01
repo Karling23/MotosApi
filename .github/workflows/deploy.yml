@@ -93,7 +93,7 @@ jobs:
             git config --global --add safe.directory $PROJECT_DIR
             
             git fetch origin
-            git reset --hard origin/main
+            git reset --hard origin/master
 
             echo "── 2. Instalando dependencias ──"
             sudo -u motosapi $PROJECT_DIR/.venv/bin/pip install -r requirements.txt
