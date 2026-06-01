@@ -56,7 +56,7 @@ jobs:
           DB_PORT:       5432
           TEST_DB_NAME:  motosapi_test_db
           CORS_ALLOW_ALL_ORIGINS: True
-        # NOTA: Cambia 'store' por el nombre real de tu aplicación de Django donde tienes los tests
+        # NOTA: Cambia 'api' por el nombre de tu app de Django si es diferente
         run: uv run python manage.py test api --verbosity=2
 
   # ── Job 2: Deploy ─────────────────────────────────────────
@@ -73,7 +73,8 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          # Corregido para usar el nombre exacto de tu secreto sin guiones bajos
+          echo "${{ secrets.VPSSSHKEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
@@ -89,14 +90,13 @@ jobs:
             echo "── 1. Actualizando código ──"
             cd $DEPLOY_PATH
             
-            # Ajuste de permisos de Git (Solución al error dubious ownership)
+            # Evita el bloqueo de propiedad dudosa de Git
             git config --global --add safe.directory $DEPLOY_PATH
             
             git fetch origin
             git reset --hard origin/main
 
             echo "── 2. Instalando dependencias ──"
-            # Utilizamos pip con el usuario motosapi como lo configuramos en el servidor
             sudo -u motosapi /opt/MotosApi/.venv/bin/pip install -r requirements.txt
 
             echo "── 3. Aplicando migraciones ──"
