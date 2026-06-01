@@ -1,13 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 from motostore.views.health import health_check
 from motostore.views.usuario import UsuarioViewSet
 from motostore.views.catalogos import MarcaViewSet, CategoriaViewSet
 from motostore.views.productos import MotocicletaViewSet, CascoViewSet, AccesorioViewSet
 from motostore.views.operaciones import PedidoViewSet, PagoViewSet, TestingViewSet
-from motostore.views.auth import RegisterView, LogoutView, CustomTokenObtainPairView
+from motostore.views.auth import RegisterView, LogoutView
+from motostore.serializers.auth import CustomTokenView
 
 router = DefaultRouter()
 router.register(r'usuarios', UsuarioViewSet, basename='usuario')
@@ -23,8 +24,9 @@ router.register(r'testings', TestingViewSet, basename='testing')
 urlpatterns = [
     path('health/', health_check),
     path('auth/register/', RegisterView.as_view(), name='auth_register'),
-    path('auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/login/', CustomTokenView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('auth/logout/', LogoutView.as_view(), name='auth_logout'),
     path('', include(router.urls)),
 ]

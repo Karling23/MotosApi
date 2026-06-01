@@ -39,9 +39,3 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         )
         return user
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        data['username'] = self.user.username
-        data['is_staff'] = self.user.is_staff
-        return data

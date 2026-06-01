@@ -1,12 +1,13 @@
 from .usuario import UsuarioSerializer, UsuarioRegistroSerializer
 from .marca import MarcaSerializer
 from .categoria import CategoriaSerializer
-from .motocicleta import MotocicletaSerializer
-from .casco import CascoSerializer
-from .accesorio import AccesorioSerializer
+from .motocicleta import MotocicletaSerializer, MotocicletaSummarySerializer
+from .casco import CascoSerializer, CascoSummarySerializer
+from .accesorio import AccesorioSerializer, AccesorioSummarySerializer
 from .pedido import PedidoSerializer, DetallePedidoSerializer
 from .pago import PagoSerializer
 from .testing import TestingSerializer
+from .auth import CustomTokenSerializer
 
 __all__ = [
     'UsuarioSerializer',
@@ -14,10 +15,14 @@ __all__ = [
     'MarcaSerializer',
     'CategoriaSerializer',
     'MotocicletaSerializer',
+    'MotocicletaSummarySerializer',
     'CascoSerializer',
+    'CascoSummarySerializer',
     'AccesorioSerializer',
+    'AccesorioSummarySerializer',
     'PedidoSerializer',
     'DetallePedidoSerializer',
     'PagoSerializer',
     'TestingSerializer',
+    'CustomTokenSerializer',
 ]
