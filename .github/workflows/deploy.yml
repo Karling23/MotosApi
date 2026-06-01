@@ -1,0 +1,116 @@
+# .github/workflows/deploy.yml
+name: MotosApi — CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+
+  # ── Job 1: Tests ──────────────────────────────────────────
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB:       motosapi_test_db
+          POSTGRES_USER:     motosapi_user
+          POSTGRES_PASSWORD: motosapi_pass_123
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run tests
+        env:
+          SECRET_KEY:    test-secret-key-for-ci-only
+          DEBUG:         True
+          ALLOWED_HOSTS: localhost,127.0.0.1
+          DB_NAME:       motosapi_test_db
+          DB_USER:       motosapi_user
+          DB_PASSWORD:   motosapi_pass_123
+          DB_HOST:       localhost
+          DB_PORT:       5432
+          TEST_DB_NAME:  motosapi_test_db
+          CORS_ALLOW_ALL_ORIGINS: True
+        # NOTA: Cambia 'api' por el nombre de tu app de Django si es diferente
+        run: uv run python manage.py test api --verbosity=2
+
+  # ── Job 2: Deploy ─────────────────────────────────────────
+  deploy:
+    name: Deploy to Hetzner VM
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          # Corregido para usar el nombre exacto de tu secreto sin guiones bajos
+          echo "${{ secrets.VPSSSHKEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VM
+        run: |
+          ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
+            set -e
+
+            # ── Definimos la ruta directamente dentro del servidor ──
+            PROJECT_DIR="/opt/MotosApi"
+
+            echo "── 1. Actualizando código ──"
+            cd $PROJECT_DIR
+            
+            # Evita el bloqueo de propiedad dudosa de Git
+            git config --global --add safe.directory $PROJECT_DIR
+            
+            git fetch origin
+            git reset --hard origin/master
+
+            echo "── 2. Instalando dependencias ──"
+            sudo -u motosapi $PROJECT_DIR/.venv/bin/pip install -r requirements.txt
+
+            echo "── 3. Aplicando migraciones ──"
+            sudo -u motosapi $PROJECT_DIR/.venv/bin/python3 manage.py migrate --noinput
+
+            echo "── 4. Recolectando estáticos ──"
+            sudo -u motosapi $PROJECT_DIR/.venv/bin/python3 manage.py collectstatic --noinput --clear
+
+            echo "── 5. Reiniciando servicios ──"
+            sudo systemctl restart gunicorn-motosapi
+            sudo systemctl restart nginx
+
+            echo "── 6. Verificando salud de la API ──"
+            sleep 3
+            curl -sf http://127.0.0.1/api/health/ && echo "API OK" || echo "API ERROR"
+
+            echo "Despliegue completado exitosamente"
+          ENDSSH
