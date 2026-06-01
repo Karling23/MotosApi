@@ -79,31 +79,30 @@ jobs:
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to VM
-        env:
-          VPS_HOST:    ${{ secrets.VPS_HOST }}
-          VPS_USER:    ${{ secrets.VPS_USERNAME }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh $VPS_USER@$VPS_HOST << 'ENDSSH'
+          ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
             set -e
 
+            # ── Definimos la ruta directamente dentro del servidor ──
+            PROJECT_DIR="/opt/MotosApi"
+
             echo "── 1. Actualizando código ──"
-            cd $DEPLOY_PATH
+            cd $PROJECT_DIR
             
             # Evita el bloqueo de propiedad dudosa de Git
-            git config --global --add safe.directory $DEPLOY_PATH
+            git config --global --add safe.directory $PROJECT_DIR
             
             git fetch origin
             git reset --hard origin/main
 
             echo "── 2. Instalando dependencias ──"
-            sudo -u motosapi /opt/MotosApi/.venv/bin/pip install -r requirements.txt
+            sudo -u motosapi $PROJECT_DIR/.venv/bin/pip install -r requirements.txt
 
             echo "── 3. Aplicando migraciones ──"
-            sudo -u motosapi /opt/MotosApi/.venv/bin/python3 manage.py migrate --noinput
+            sudo -u motosapi $PROJECT_DIR/.venv/bin/python3 manage.py migrate --noinput
 
             echo "── 4. Recolectando estáticos ──"
-            sudo -u motosapi /opt/MotosApi/.venv/bin/python3 manage.py collectstatic --noinput --clear
+            sudo -u motosapi $PROJECT_DIR/.venv/bin/python3 manage.py collectstatic --noinput --clear
 
             echo "── 5. Reiniciando servicios ──"
             sudo systemctl restart gunicorn-motosapi
