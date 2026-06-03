@@ -37,9 +37,9 @@
 
 <hr>
 
-# MotosApi
+# Venta de Motos - API
 
-MotosApi es una API desarrollada en Django REST Framework para la gestión de productos, usuarios y transacciones de una tienda de motocicletas y accesorios.
+API desarrollada en Django REST Framework para la gestión de productos, usuarios y transacciones de una tienda de motocicletas y accesorios.
 
 ## Instalación y Ejecución del Backend
 
@@ -49,6 +49,7 @@ Sigue estos pasos para levantar el entorno de desarrollo en tu máquina local:
    ```bash
    git clone https://github.com/Karling23/MotosApi.git
    cd MotosApi
+   uv sync
    ```
 
 2. **Crear y configurar postgres:**
@@ -94,13 +95,15 @@ Sigue estos pasos para levantar el entorno de desarrollo en tu máquina local:
     # CORS
     CORS_ALLOW_ALL_ORIGINS=True
 
-    # Test database (Django la crea automáticamente)
+    # Test database
     TEST_DB_NAME=motosapi_test_db
    ```
 
 6. **Aplicar migraciones:**
    ```bash
+   python manage.py makemigrations
    python manage.py migrate
+   python manage.py check
    ```
 
 7. **Crear superusuario (opcional pero recomendado):**
@@ -123,19 +126,19 @@ Sigue estos pasos para levantar el entorno de desarrollo en tu máquina local:
 
 El sistema utiliza **JSON Web Tokens (JWT)** para la autenticación. 
 
-### 1. Obtener el Token (Login)
+### 1. Obtener el Token (POST /api/auth/login/)
 
 Realiza una petición `POST` al endpoint de inicio de sesión con tus credenciales:
 
 **Petición:**
 ```http
-POST /api/auth/login/
-Content-Type: application/json
+POST {base_url}/api/auth/login/
+Body: raw/json
 
 {
     "username": "tu_usuario",
     "password": "tu_password"
-}
+} 
 ```
 
 **Respuesta Exitosa:**
@@ -162,80 +165,80 @@ Para acceder a los endpoints protegidos (como el listado de pedidos), debes incl
 A continuación, se listan las rutas principales de la API. Se asume el prefijo `/api/` antes de cada endpoint.
 
 ### Autenticación (`/api/auth/`)
-- `POST /register/` - Registrar nuevo usuario.
-- `POST /login/` - Iniciar sesión (Obtener JWT).
+- `POST /api/auth/register/` - Registrar nuevo usuario.
+- `POST /api/auth/login/` - Iniciar sesión (Obtener JWT).
 
 ### Usuarios (`/api/usuarios/`)
-- `GET /` - Listar usuarios.
-- `POST /` - Crear usuario.
-- `GET /{id}/` - Obtener detalle de usuario.
-- `PUT /{id}/` - Actualizar usuario completo.
-- `PATCH /{id}/` - Actualización parcial de usuario.
-- `DELETE /{id}/` - Eliminar usuario.
+- `GET /api/usuarios/` - Listar usuarios.
+- `POST /api/usuarios/` - Crear usuario.
+- `GET /api/usuarios/{id}/` - Obtener detalle de usuario.
+- `PUT /api/usuarios/{id}/` - Actualizar usuario completo.
+- `PATCH /api/usuarios/{id}/` - Actualización parcial de usuario.
+- `DELETE /api/usuarios/{id}/` - Eliminar usuario.
 
 ### Marcas (`/api/marcas/`)
-- `GET /` - Listar marcas.
-- `POST /` - Crear marca.
-- `GET /{id}/` - Obtener detalle de marca.
-- `PUT /{id}/` - Actualizar marca completa.
-- `PATCH /{id}/` - Actualización parcial de marca.
-- `DELETE /{id}/` - Eliminar marca.
+- `GET /api/marcas/` - Listar marcas.
+- `POST /api/marcas/` - Crear marca.
+- `GET /api/marcas/{id}/` - Obtener detalle de marca.
+- `PUT /api/marcas/{id}/` - Actualizar marca completa.
+- `PATCH /api/marcas/{id}/` - Actualización parcial de marca.
+- `DELETE /api/marcas/{id}/` - Eliminar marca.
 
 ### Categorías (`/api/categorias/`)
-- `GET /` - Listar categorías.
-- `POST /` - Crear categoría.
-- `GET /{id}/` - Obtener detalle de categoría.
-- `PUT /{id}/` - Actualizar categoría completa.
-- `PATCH /{id}/` - Actualización parcial de categoría.
-- `DELETE /{id}/` - Eliminar categoría.
+- `GET /api/categorias/` - Listar categorías.
+- `POST /api/categorias/` - Crear categoría.
+- `GET /api/categorias/{id}/` - Obtener detalle de categoría.
+- `PUT /api/categorias/{id}/` - Actualizar categoría completa.
+- `PATCH /api/categorias/{id}/` - Actualización parcial de categoría.
+- `DELETE /api/categorias/{id}/` - Eliminar categoría.
 
 ### Motocicletas (`/api/motocicletas/`)
-- `GET /` - Listar motocicletas.
-- `POST /` - Crear motocicleta.
-- `GET /{id}/` - Obtener detalle de motocicleta.
-- `PUT /{id}/` - Actualizar motocicleta completa.
-- `PATCH /{id}/` - Actualización parcial de motocicleta.
-- `DELETE /{id}/` - Eliminar motocicleta.
+- `GET /api/motocicletas/` - Listar motocicletas.
+- `POST /api/motocicletas/` - Crear motocicleta.
+- `GET /api/motocicletas/{id}/` - Obtener detalle de motocicleta.
+- `PUT /api/motocicletas/{id}/` - Actualizar motocicleta completa.
+- `PATCH /api/motocicletas/{id}/` - Actualización parcial de motocicleta.
+- `DELETE /api/motocicletas/{id}/` - Eliminar motocicleta.
 
 ### Cascos (`/api/cascos/`)
-- `GET /` - Listar cascos.
-- `POST /` - Crear casco.
-- `GET /{id}/` - Obtener detalle de casco.
-- `PUT /{id}/` - Actualizar casco completo.
-- `PATCH /{id}/` - Actualización parcial de casco.
-- `DELETE /{id}/` - Eliminar casco.
+- `GET /api/cascos/` - Listar cascos.
+- `POST /api/cascos/` - Crear casco.
+- `GET /api/cascos/{id}/` - Obtener detalle de casco.
+- `PUT /api/cascos/{id}/` - Actualizar casco completo.
+- `PATCH /api/cascos/{id}/` - Actualización parcial de casco.
+- `DELETE /api/cascos/{id}/` - Eliminar casco.
 
 ### Accesorios (`/api/accesorios/`)
-- `GET /` - Listar accesorios.
-- `POST /` - Crear accesorio.
-- `GET /{id}/` - Obtener detalle de accesorio.
-- `PUT /{id}/` - Actualizar accesorio completo.
-- `PATCH /{id}/` - Actualización parcial de accesorio.
-- `DELETE /{id}/` - Eliminar accesorio.
+- `GET /api/accesorios/` - Listar accesorios.
+- `POST /api/accesorios/` - Crear accesorio.
+- `GET /api/accesorios/{id}/` - Obtener detalle de accesorio.
+- `PUT /api/accesorios/{id}/` - Actualizar accesorio completo.
+- `PATCH /api/accesorios/{id}/` - Actualización parcial de accesorio.
+- `DELETE /api/accesorios/{id}/` - Eliminar accesorio.
 
 ### Pedidos (`/api/pedidos/`)
-- `GET /` - Listar pedidos.
-- `POST /` - Crear pedido.
-- `GET /{id}/` - Obtener detalle de pedido.
-- `PUT /{id}/` - Actualizar pedido completo.
-- `PATCH /{id}/` - Actualización parcial de pedido.
-- `DELETE /{id}/` - Eliminar pedido.
+- `GET /api/pedidos/` - Listar pedidos.
+- `POST /api/pedidos/` - Crear pedido.
+- `GET /api/pedidos/{id}/` - Obtener detalle de pedido.
+- `PUT /api/pedidos/{id}/` - Actualizar pedido completo.
+- `PATCH /api/pedidos/{id}/` - Actualización parcial de pedido.
+- `DELETE /api/pedidos/{id}/` - Eliminar pedido.
 
 ### Pagos (`/api/pagos/`)
-- `GET /` - Listar pagos.
-- `POST /` - Crear pago.
-- `GET /{id}/` - Obtener detalle de pago.
-- `PUT /{id}/` - Actualizar pago completo.
-- `PATCH /{id}/` - Actualización parcial de pago.
-- `DELETE /{id}/` - Eliminar pago.
+- `GET /api/pagos/` - Listar pagos.
+- `POST /api/pagos/` - Crear pago.
+- `GET /api/pagos/{id}/` - Obtener detalle de pago.
+- `PUT /api/pagos/{id}/` - Actualizar pago completo.
+- `PATCH /api/pagos/{id}/` - Actualización parcial de pago.
+- `DELETE /api/pagos/{id}/` - Eliminar pago.
 
 ### Testings (`/api/testings/`)
-- `GET /` - Listar pruebas de manejo.
-- `POST /` - Crear prueba de manejo.
-- `GET /{id}/` - Obtener detalle de prueba de manejo.
-- `PUT /{id}/` - Actualizar prueba de manejo completa.
-- `PATCH /{id}/` - Actualización parcial de prueba de manejo.
-- `DELETE /{id}/` - Eliminar prueba de manejo.
+- `GET /api/testings/` - Listar pruebas de manejo.
+- `POST /api/testings/` - Crear prueba de manejo.
+- `GET /api/testings/{id}/` - Obtener detalle de prueba de manejo.
+- `PUT /api/testings/{id}/` - Actualizar prueba de manejo completa.
+- `PATCH /api/testings/{id}/` - Actualización parcial de prueba de manejo.
+- `DELETE /api/testings/{id}/` - Eliminar prueba de manejo.
 
 ### Otros
 - `GET /api/health/` - Verificar estado de la API.
